@@ -2,14 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const admin = require('firebase-admin');
-
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-const db = admin.firestore();
 
 const app = express();
 app.use(express.json());
@@ -47,18 +39,6 @@ app.post('/ask', async (req, res) => {
     );
 
     const answer = response.data.choices[0].message.content;
-
-    // 🔥 Salvare în Firestore
-    await db
-      .collection('conversations')
-      .doc(userId)
-      .collection('messages')
-      .add({
-        question,
-        answer,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
     res.send({ answer });
   } catch (err) {
     console.error(err?.response?.data || err.message);
